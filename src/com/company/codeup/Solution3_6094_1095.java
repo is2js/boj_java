@@ -18,15 +18,15 @@ class Solution3_6094_1095 {
     //        for(String e : splitedArr) {
     //            arr.add(Integer.parseInt(e));
     //        }
-    // 2. stream으로 arr에 -> parseInt해서 -> arraylist에 담기
+    // 2. stream으로 arr에 -> map 메서드참조 parseInt해서 -> arraylist에 담기
     ArrayList<Integer> arr =
         (ArrayList<Integer>)
             Arrays.stream(splitedArr).map(Integer::parseInt).collect(Collectors.toList());
     // 2-2. 원래는 arr ---Arrays.asList()--> list --new ArrayList( list )--> arraylist가 정석
 //    ArrayList<String> arr = new ArrayList<>(Arrays.asList(splitedArr));
     // 2-3. arr + 빈 ArrayList -> Collections.addAll( 빈arraylist, arr)
-            ArrayList<String> list = new ArrayList<>();
-            Collections.addAll( list ,  splitedArr );
+//            ArrayList<String> list = new ArrayList<>();
+//            Collections.addAll( list ,  splitedArr );
     //        System.out.println(list.get(0));
 
     // 3. 최소값을 update하면서 찾기
