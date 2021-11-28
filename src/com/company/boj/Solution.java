@@ -6,8 +6,6 @@ import java.util.Scanner;
 
 class Solution {
 
-	public static final int N = 5;
-
 	public static void main(String args[]) throws Exception {
 		System.setIn(new FileInputStream("src/com/company/boj/input.txt"));
 		Scanner sc = new Scanner(System.in);
