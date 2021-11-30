@@ -2,9 +2,13 @@ package com.company.boj;
 
 import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 class Solution {
+
+	public static final String SPLIT_VALUE = "";
 
 	public static void main(String args[]) throws Exception {
 		System.setIn(new FileInputStream("src/com/company/boj/input.txt"));
@@ -33,6 +37,11 @@ class Solution {
 		//     arr[i] = sc.nextLine().split(" ");
 		// }
 
+		// System.out.println(convert("123", SPLIT_VALUE));
 
+	}
+
+	static List<Integer> convert(String string, String splitValue) {
+		return Arrays.stream(string.split(splitValue)).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
 	}
 }
