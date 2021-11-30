@@ -51,5 +51,10 @@
            1. arr를 인자로 넣거나, `그냥 콤마만 수동으로` 넣거나
         3. stream -> list by `.collect(Collectors.toList())`
             1. cf) IntStream -> boxed()무조건해서 Stream<Integer>만들고 난뒤에야 list가능 -> List<Integer>만 가능
-        4. 
+
+5. Stream으로 `list의 중복확인, 중복제거`
+   1. 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
+   2. 중복제거 -> list`.stream().distinct()` + `.collect(Collectors.toList())`로 중복제거한 리스트 뽑기
+   3. HashSet, LinkedHashSet -> **인자(생성자)에 `list`만**를 받음.
+      1. list급이라서 그런지 바로 출력도 된다!
 
