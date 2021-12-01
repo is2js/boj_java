@@ -58,3 +58,14 @@
    3. HashSet, LinkedHashSet -> **인자(생성자)에 `list`만**를 받음.
       1. list급이라서 그런지 바로 출력도 된다!
 
+
+6. Stream으로 배열 2개이상 합치기 > Stream.of( arr1, arr2) `.flatMap(Stream::of)` .collect(Collectors.toList());
+   1. 1개의 스트림으로 만드는 마술: `.flatMap(Stream::of)` 
+
+### stream 모음
+1. list 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
+2. list **중복제거** -> list`.stream().distinct()` + `.collect(Collectors.toList())`로 중복제거한 리스트 뽑기
+3. arr 합치기 -> Stream.of( arr1, arr2) `.flatMap(Stream::of)` .collect(Collectors.toList());ㄴ
+4. 문자열array -> List<Integer> 형변환 -> Arrays.stream( arr )`.mapToInt(Integer::parseInt).boxed()`.collect(Collectors.toList())
+5. 문자 대소문자 전환 ->  List<String>이면 대소문자 변환 가능 list.stream() + `.map(String::toUpperCase)`
+6. 숫자 값 변경 -> List<Integer>면 숫자변환 가능 list.stream() + `map(x -> x*x)`
