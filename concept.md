@@ -46,26 +46,63 @@
     1. **stream은 한번(print)등 쓰면 다시 재활용 못한다!!**
     2. stream은 빈 스트림을 static메서드 `Stream.of( , ,)`  or `IntStream.range(a,b)`로 만듬
         1. stream -> arr by `.toArray(Type[]::new)`
-           1. Int는 Integer로 바꾸기 by boxed()
+            1. Int는 Integer로 바꾸기 by boxed()
         2. arr -> list by `Arrays.asList()`
-           1. arr를 인자로 넣거나, `그냥 콤마만 수동으로` 넣거나
+            1. arr를 인자로 넣거나, `그냥 콤마만 수동으로` 넣거나
         3. stream -> list by `.collect(Collectors.toList())`
             1. cf) IntStream -> boxed()무조건해서 Stream<Integer>만들고 난뒤에야 list가능 -> List<Integer>만 가능
 
 5. Stream으로 `list의 중복확인, 중복제거`
-   1. 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
-   2. 중복제거 -> list`.stream().distinct()` + `.collect(Collectors.toList())`로 중복제거한 리스트 뽑기
-   3. HashSet, LinkedHashSet -> **인자(생성자)에 `list`만**를 받음.
-      1. list급이라서 그런지 바로 출력도 된다!
+    1. 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
+    2. 중복제거 -> list`.stream().distinct()` + `.collect(Collectors.toList())`로 중복제거한 리스트 뽑기
+    3. HashSet, LinkedHashSet -> **인자(생성자)에 `list`만**를 받음.
+        1. list급이라서 그런지 바로 출력도 된다!
 
 
 6. Stream으로 배열 2개이상 합치기 > Stream.of( arr1, arr2) `.flatMap(Stream::of)` .collect(Collectors.toList());
-   1. 1개의 스트림으로 만드는 마술: `.flatMap(Stream::of)` 
+    1. 1개의 스트림으로 만드는 마술: `.flatMap(Stream::of)`
+
+7. 문자열의 null확인
+    1. == null || .trim().isEmpty()
+
+8. parse 2가지 방법
+    1. Double.parseDouble(str);
+    2. Double.valueOf(str);
+
+9. String 역 출력 -> new StringBuilder( string ) `.reverse()`.toString()
+    1. split -> stream은 역순이 어렵다
+       1. cf) stream().sorted()  or .sorted(Collections.reverseOrder())
+    2. split -> list -> `Collections.reverse( list )`가 inplace 역순시킨다. -> stream + reduce + get으로 문자열 모으기
+    3. 또는 index만 거꾸로 돌면서 , 쌩String에 바로 `.charAt(i)`
 
 ### stream 모음
+
 1. list 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
 2. list **중복제거** -> list`.stream().distinct()` + `.collect(Collectors.toList())`로 중복제거한 리스트 뽑기
 3. arr 합치기 -> Stream.of( arr1, arr2) `.flatMap(Stream::of)` .collect(Collectors.toList());ㄴ
-4. 문자열array -> List<Integer> 형변환 -> Arrays.stream( arr )`.mapToInt(Integer::parseInt).boxed()`.collect(Collectors.toList())
+4. 문자열array -> List<Integer> 형변환 -> Arrays.stream( arr )`.mapToInt(Integer::parseInt).boxed()`.collect(
+   Collectors.toList())
 5. 문자 대소문자 전환 ->  List<String>이면 대소문자 변환 가능 list.stream() + `.map(String::toUpperCase)`
 6. 숫자 값 변경 -> List<Integer>면 숫자변환 가능 list.stream() + `map(x -> x*x)`
+
+7. 고난도
+    1. list -> 문자열 합치기: hashSet.stream()`.map(Object::toString).reduce((a,b)->a+b).get()`;
+    2. 원소Class가 가진 isXXX, hasXXX메서드를 통해, 해당하는 것 있는지 검색할 때
+        - return this.result.stream()`.anyMatch(Scores::hasStrike)`;
+        - return this.scores.stream().anyMatch(Score::isStrike);
+        - return this == STRIKE;
+    3. Enum 속 finder로 분기별 처리되도록 검색할 때
+        - return Arrays.stream( OperateType.values())
+          .filter( e -> e.symbol.equals( symbol ))
+          .findAny()
+          .orElseThrow( () -> new IllegalArgumentException("not a arithmetic symbols"));
+    4. list의 집계함수 만들기
+        - list의 집계를 reduce().get() + Integer::sum 으로 구하기 return list.stream()
+          .reduce(Integer::sum)
+          .get();
+    5. enum finder 속 filter에 들어갈 또다른 람다식으로 boolean식 만들기
+        - Arrays.stream(Program.values())
+          .filter(e -> e.list.stream().anyMatch(element -> element.equals(name)))
+          .filter(hasNameInGroup(name))
+          .findAny()
+          .orElseThrow(() -> new IllegalArgumentException("없는 프로그램입니다."));
