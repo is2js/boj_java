@@ -69,11 +69,38 @@
     1. Double.parseDouble(str);
     2. Double.valueOf(str);
 
-9. String 역 출력 -> new StringBuilder( string ) `.reverse()`.toString()
-    1. split -> stream은 역순이 어렵다
-       1. cf) stream().sorted()  or .sorted(Collections.reverseOrder())
-    2. split -> list -> `Collections.reverse( list )`가 inplace 역순시킨다. -> stream + reduce + get으로 문자열 모으기
-    3. 또는 index만 거꾸로 돌면서 , 쌩String에 바로 `.charAt(i)`
+9. String 역 출력 -> `new StringBuilder( string )` `.reverse()`.toString()
+    1. append뿐만 아니라 reverse도 가지고 있네~
+    2. split -> stream의 역순이 어렵다
+        1. cf) stream().sorted()  or .sorted(Collections.reverseOrder())
+    3. split -> list -> `Collections.reverse( list )`가 inplace 역순시킨다. -> stream + reduce + get으로 문자열 모으기
+    4. 또는 index만 거꾸로 돌면서 , 쌩String에 바로 `.charAt(i)`
+
+10. 객체list -> stream -> (LinkedHash)Map 만들기
+    1. for문으로 돌면서 map.put( 인변.getter(), 인변2.getter())로 만들 수 도 있으나
+    2. 객체list.stream()
+        1. .collect( Collectors `.toMap( 객체::getter1 , 객체:getter2 )` )로 기본 Map을 만들 수 있다.
+            1. 원하면 `.sorted()`로 미리 정렬해놓고 -> 나중에 LinkedHashMap설정을 해준다.
+        2. toMap의 `3번째 인자`로 key중복 해결방법lambda `(old,new) -> (택1) lambda`을 설정해야 ->
+        3. `4번째 인자`에서 `map종류::new`로 맵의 종류를 선택할 수 있다.
+            1. LinkedHashMap을 위해, 미리 정렬해놓고 넣을 수 있는데, .collect()전에 .sorted()의 인자로
+            2. `Comparator.comparing정렬기준변수타입 ( 객체:: key변수getter)` + 필요시 .reversed()로 정렬기준을 `.sorted()정렬기준을 인자`로 넣을 수 있다.
+
+```java
+Map<Integer, String> map=list.stream()
+	// .sorted(Comparator.comparingInt(Item::getId).reversed())
+	.collect(Collectors.toMap(
+	Item::getId,
+	Item::getValue,
+	(OldId,newId)->OldId,
+	// (OldId, newId) -> newId,
+	LinkedHashMap::new
+	));
+```
+
+11. 문자열 길이 확인하기 직접 변환안하고 filter, anyMatch안에서 조건식만 작성
+
+- Arrays.stream(stringsArray).anyMatch(s -> s.length() < 1);
 
 ### stream 모음
 
@@ -84,25 +111,46 @@
    Collectors.toList())
 5. 문자 대소문자 전환 ->  List<String>이면 대소문자 변환 가능 list.stream() + `.map(String::toUpperCase)`
 6. 숫자 값 변경 -> List<Integer>면 숫자변환 가능 list.stream() + `map(x -> x*x)`
+7. 문자열 길이 확인하기 `map, mapToInt 등의 직접 변환안하고` filter, anyMatch안에서 조건식만 작성
+    - Arrays.stream(stringsArray).anyMatch(s -> `s.length() < 1`);
 
-7. 고난도
-    1. list -> 문자열 합치기: hashSet.stream()`.map(Object::toString).reduce((a,b)->a+b).get()`;
-    2. 원소Class가 가진 isXXX, hasXXX메서드를 통해, 해당하는 것 있는지 검색할 때
+8. 고난도
+    2. list -> 문자열 합치기: hashSet.stream()`.map(Object::toString).reduce((a,b)->a+b).get()`;
+    3. 원소Class가 가진 isXXX, hasXXX메서드를 통해, 해당하는 것 있는지 검색할 때
         - return this.result.stream()`.anyMatch(Scores::hasStrike)`;
         - return this.scores.stream().anyMatch(Score::isStrike);
         - return this == STRIKE;
-    3. Enum 속 finder로 분기별 처리되도록 검색할 때
+    4. Enum 속 finder로 분기별 처리되도록 검색할 때
         - return Arrays.stream( OperateType.values())
           .filter( e -> e.symbol.equals( symbol ))
           .findAny()
           .orElseThrow( () -> new IllegalArgumentException("not a arithmetic symbols"));
-    4. list의 집계함수 만들기
+    5. list의 집계함수 만들기
         - list의 집계를 reduce().get() + Integer::sum 으로 구하기 return list.stream()
           .reduce(Integer::sum)
           .get();
-    5. enum finder 속 filter에 들어갈 또다른 람다식으로 boolean식 만들기
+    6. enum finder 속 filter에 들어갈 또다른 람다식으로 boolean식 만들기
         - Arrays.stream(Program.values())
           .filter(e -> e.list.stream().anyMatch(element -> element.equals(name)))
           .filter(hasNameInGroup(name))
           .findAny()
           .orElseThrow(() -> new IllegalArgumentException("없는 프로그램입니다."));
+    7. 음수검사: IntStream만들어서 custom boolean식 만들고 filter에 넣기
+        - Arrays.stream(mathexpression.split(",|:"))
+          .mapToInt(Integer::parseInt)
+          .filter(i -> checkNegative(i))
+          // .sum();
+    8. 숫자사이 연산자들의 연속입력 검사
+        - if (Arrays.stream(removedSpaceInput.split("[0-9]")).anyMatch(operator -> operator.length() > 1)) {
+    9. 객체list -> Map 만들기
+        - Map<Integer, String> map = list.stream()
+          // .sorted(Comparator.comparingInt(Item::getId).reversed())
+          .collect(Collectors.toMap(
+          Item::getId, Item::getValue,
+          (OldId, newId) -> OldId, // (OldId, newId) -> newId, LinkedHashMap::new
+          ));
+    10. 문자열숫자 전체자리 format을 한번에 검사
+        - if (!(input.chars().allMatch(Character::isDigit))) {
+          throw new IllegalArgumentException("시도 횟수는 숫자여야 한다.");
+          }
+
