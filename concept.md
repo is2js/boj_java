@@ -1,4 +1,76 @@
-### concept
+
+### stream 개념 및 예제코드 정리
+
+1. list 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
+2. list **중복제거** -> list`.stream().distinct()` + `.collect(Collectors.toList())`로 중복제거한 리스트 뽑기
+3. arr 합치기 -> Stream.of( arr1, arr2) `.flatMap(Stream::of)` .collect(Collectors.toList());ㄴ
+4. 문자열array -> List<Integer> 형변환 -> Arrays.stream( arr )`.mapToInt(Integer::parseInt).boxed()`.collect(
+   Collectors.toList())
+5. 문자 대소문자 전환 ->  List<String>이면 대소문자 변환 가능 list.stream() + `.map(String::toUpperCase)`
+6. 숫자 값 변경 -> List<Integer>면 숫자변환 가능 list.stream() + `map(x -> x*x)`
+7. 문자열 길이 확인하기 `map, mapToInt 등의 직접 변환안하고` filter, anyMatch안에서 조건식만 작성
+    - Arrays.stream(stringsArray).anyMatch(s -> `s.length() < 1`);
+8. 문자열 길이의 최대값( `원본X 값뽑기` -> IntStream 형 전환후 바로 max() )
+   - Arrays.stream(lines)
+     .mapToInt(String::length)
+     .max()
+     .orElseThrow(NoSuchElementException::new);
+
+9. 고난도
+    2. list -> 문자열 합치기: hashSet.stream()`.map(Object::toString).reduce((a,b)->a+b).get()`;
+    3. 원소Class가 가진 isXXX, hasXXX메서드를 통해, 해당하는 것 있는지 검색할 때
+        - return this.result.stream()`.anyMatch(Scores::hasStrike)`;
+        - return this.scores.stream().anyMatch(Score::isStrike);
+        - return this == STRIKE;
+    4. Enum 속 finder로 분기별 처리되도록 검색할 때
+        - return Arrays.stream( OperateType.values())
+          .filter( e -> e.symbol.equals( symbol ))
+          .findAny()
+          .orElseThrow( () -> new IllegalArgumentException("not a arithmetic symbols"));
+    5. list의 집계함수 만들기
+        - list의 집계를 reduce().get() + Integer::sum 으로 구하기 return list.stream()
+          .reduce(Integer::sum)
+          .get();
+    6. enum finder 속 filter에 들어갈 또다른 람다식으로 boolean식 만들기
+        - Arrays.stream(Program.values())
+          .filter(e -> e.list.stream().anyMatch(element -> element.equals(name)))
+          .filter(hasNameInGroup(name))
+          .findAny()
+          .orElseThrow(() -> new IllegalArgumentException("없는 프로그램입니다."));
+    7. 음수검사: IntStream만들어서 custom boolean식 만들고 filter에 넣기
+        - Arrays.stream(mathexpression.split(",|:"))
+          .mapToInt(Integer::parseInt)
+          .filter(i -> checkNegative(i))
+          // .sum();
+    8. 숫자사이 연산자들의 연속입력 검사
+        - if (Arrays.stream(removedSpaceInput.split("[0-9]")).anyMatch(operator -> operator.length() > 1)) {
+    9. 객체list -> Map 만들기
+        - Map<Integer, String> map = list.stream()
+          // .sorted(Comparator.comparingInt(Item::getId).reversed())
+          .collect(Collectors.toMap(
+          Item::getId, Item::getValue,
+          (OldId, newId) -> OldId, // (OldId, newId) -> newId, LinkedHashMap::new
+          ));
+    10. 문자열숫자 전체자리 format을 한번에 검사
+        - if (!(input.chars().allMatch(Character::isDigit))) { throw new IllegalArgumentException("시도 횟수는 숫자여야 한다."); }
+    11. stream()으로 집계하는 여러가지 방법
+        1. int List를 포함한 `<비 int[], intStream>` -> 바로 max()안됨. 값만 구하려면 IntStream변환후 max() / 그렇지 않으면 max(기준)
+            1. **`바로 max()`하려면 형변환 필요 <- `바로max()를 위한 형변환 먼저는 진짜 그 값만 구하기 위할때, 원본 노상관`**
+                1. int List : `같은 int라도 mapToInt( x -> x) 등`의 형변환 필요, int[]아니면 바로 intStream이 안됨.
+            2. **`max(기준)`으로 `기준에 해당하는 원본을 찾는게 매력`**
+                1. max( )인자로 들어가는 기준의 기본형태 : `Comparator.comparing  (  )`
+                   **1. 원래 숫자(int list 등) 라면 : `.max(Comparator.comparing(x -> x))`**
+                   1. .max(Comparator.comparing(x -> x))
+                   **2. 객체, 스트링 등 : `.max(Comparator.comparingInt(x -> x.getter() or Class::getter)`**
+                   1. .max(Comparator.comparingInt(Student::getAge))
+
+        2. `<int[], intStream>` -> 바로 max()하여 `값만`을 return받음.
+            - `바로 max()` 때린 뒤 -> Optional을 .orElse(default) or .orElseThrow(::new)
+                - 참고) .orElse() 류 대신 -> `.getAsInt` 오류발생시키면서, 값이 있을 땐 int로 바로 받기
+   
+
+
+### concept(문제별 개념학습)
 
 1. arr.clone() / Arrays.toString( arr ) 디버깅용 찍을 수있다!
     1. list도 .clone()은 있으나 Arrays 및 collections에 toString없고, 그냥 내부 오버라이딩되어있으니 sout에 찍으면 된다.
@@ -101,56 +173,4 @@ Map<Integer, String> map=list.stream()
 11. 문자열 길이 확인하기 직접 변환안하고 filter, anyMatch안에서 조건식만 작성
 
 - Arrays.stream(stringsArray).anyMatch(s -> s.length() < 1);
-
-### stream 모음
-
-1. list 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
-2. list **중복제거** -> list`.stream().distinct()` + `.collect(Collectors.toList())`로 중복제거한 리스트 뽑기
-3. arr 합치기 -> Stream.of( arr1, arr2) `.flatMap(Stream::of)` .collect(Collectors.toList());ㄴ
-4. 문자열array -> List<Integer> 형변환 -> Arrays.stream( arr )`.mapToInt(Integer::parseInt).boxed()`.collect(
-   Collectors.toList())
-5. 문자 대소문자 전환 ->  List<String>이면 대소문자 변환 가능 list.stream() + `.map(String::toUpperCase)`
-6. 숫자 값 변경 -> List<Integer>면 숫자변환 가능 list.stream() + `map(x -> x*x)`
-7. 문자열 길이 확인하기 `map, mapToInt 등의 직접 변환안하고` filter, anyMatch안에서 조건식만 작성
-    - Arrays.stream(stringsArray).anyMatch(s -> `s.length() < 1`);
-
-8. 고난도
-    2. list -> 문자열 합치기: hashSet.stream()`.map(Object::toString).reduce((a,b)->a+b).get()`;
-    3. 원소Class가 가진 isXXX, hasXXX메서드를 통해, 해당하는 것 있는지 검색할 때
-        - return this.result.stream()`.anyMatch(Scores::hasStrike)`;
-        - return this.scores.stream().anyMatch(Score::isStrike);
-        - return this == STRIKE;
-    4. Enum 속 finder로 분기별 처리되도록 검색할 때
-        - return Arrays.stream( OperateType.values())
-          .filter( e -> e.symbol.equals( symbol ))
-          .findAny()
-          .orElseThrow( () -> new IllegalArgumentException("not a arithmetic symbols"));
-    5. list의 집계함수 만들기
-        - list의 집계를 reduce().get() + Integer::sum 으로 구하기 return list.stream()
-          .reduce(Integer::sum)
-          .get();
-    6. enum finder 속 filter에 들어갈 또다른 람다식으로 boolean식 만들기
-        - Arrays.stream(Program.values())
-          .filter(e -> e.list.stream().anyMatch(element -> element.equals(name)))
-          .filter(hasNameInGroup(name))
-          .findAny()
-          .orElseThrow(() -> new IllegalArgumentException("없는 프로그램입니다."));
-    7. 음수검사: IntStream만들어서 custom boolean식 만들고 filter에 넣기
-        - Arrays.stream(mathexpression.split(",|:"))
-          .mapToInt(Integer::parseInt)
-          .filter(i -> checkNegative(i))
-          // .sum();
-    8. 숫자사이 연산자들의 연속입력 검사
-        - if (Arrays.stream(removedSpaceInput.split("[0-9]")).anyMatch(operator -> operator.length() > 1)) {
-    9. 객체list -> Map 만들기
-        - Map<Integer, String> map = list.stream()
-          // .sorted(Comparator.comparingInt(Item::getId).reversed())
-          .collect(Collectors.toMap(
-          Item::getId, Item::getValue,
-          (OldId, newId) -> OldId, // (OldId, newId) -> newId, LinkedHashMap::new
-          ));
-    10. 문자열숫자 전체자리 format을 한번에 검사
-        - if (!(input.chars().allMatch(Character::isDigit))) {
-          throw new IllegalArgumentException("시도 횟수는 숫자여야 한다.");
-          }
 
