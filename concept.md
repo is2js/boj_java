@@ -1,4 +1,3 @@
-
 ### stream 개념 및 예제코드 정리
 
 1. list 중복확인 -> list`.stream().distinct()` + `.count()`와 원본.size()를 비교
@@ -10,11 +9,11 @@
 6. 숫자 값 변경 -> List<Integer>면 숫자변환 가능 list.stream() + `map(x -> x*x)`
 7. 문자열 길이 확인하기 `map, mapToInt 등의 직접 변환안하고` filter, anyMatch안에서 조건식만 작성
     - Arrays.stream(stringsArray).anyMatch(s -> `s.length() < 1`);
-8. 문자열 길이의 최대값( `원본X 값뽑기` -> IntStream 형 전환후 바로 max() )
-   - Arrays.stream(lines)
-     .mapToInt(String::length)
-     .max()
-     .orElseThrow(NoSuchElementException::new);
+8. 문자열 길이의 최대`값`( `원본X 값뽑기` -> IntStream 형 전환후 바로 max() )
+    - Arrays.stream(lines)
+      .mapToInt(String::length)
+      .max()
+      .orElseThrow(NoSuchElementException::new);
 
 9. 고난도
     2. list -> 문자열 합치기: hashSet.stream()`.map(Object::toString).reduce((a,b)->a+b).get()`;
@@ -53,22 +52,27 @@
           ));
     10. 문자열숫자 전체자리 format을 한번에 검사
         - if (!(input.chars().allMatch(Character::isDigit))) { throw new IllegalArgumentException("시도 횟수는 숫자여야 한다."); }
-    11. stream()으로 집계하는 여러가지 방법
+    11. stream()으로 `집계`와 `필터링`(max(기준) -> `해당기준(변수)의 max값으로 필터링`)
         1. int List를 포함한 `<비 int[], intStream>` -> 바로 max()안됨. 값만 구하려면 IntStream변환후 max() / 그렇지 않으면 max(기준)
-            1. **`바로 max()`하려면 형변환 필요 <- `바로max()를 위한 형변환 먼저는 진짜 그 값만 구하기 위할때, 원본 노상관`**
+            1. `바로 max()`하려면 형변환 필요 <- `바로max()를 위한 형변환 먼저는 진짜 그 값만 구하기 위할때, 원본 노상관`
                 1. int List : `같은 int라도 mapToInt( x -> x) 등`의 형변환 필요, int[]아니면 바로 intStream이 안됨.
-            2. **`max(기준)`으로 `기준에 해당하는 원본을 찾는게 매력`**
+            2. **`max(기준)`으로 `기준에 해당하는 원본을 필터링 매력`**
                 1. max( )인자로 들어가는 기준의 기본형태 : `Comparator.comparing  (  )`
                    **1. 원래 숫자(int list 등) 라면 : `.max(Comparator.comparing(x -> x))`**
-                   1. .max(Comparator.comparing(x -> x))
+                    - .max(Comparator.comparing(x -> x))
                    **2. 객체, 스트링 등 : `.max(Comparator.comparingInt(x -> x.getter() or Class::getter)`**
-                   1. .max(Comparator.comparingInt(Student::getAge))
+                    - .max(Comparator.comparingInt(Student::getAge))
 
         2. `<int[], intStream>` -> 바로 max()하여 `값만`을 return받음.
             - `바로 max()` 때린 뒤 -> Optional을 .orElse(default) or .orElseThrow(::new)
                 - 참고) .orElse() 류 대신 -> `.getAsInt` 오류발생시키면서, 값이 있을 땐 int로 바로 받기
-   
+    12. 중간처리메소드 peek()로 객체생성후 log(toString) 찍어보기 : stream을 중간에 찍어보기(log), but 뒤에 메서드 나와야됌
+        1. 최종처리메서드 forEach()와 같은 개념인데, 한번 중간에 돌면서 일시키는 것
 
+        - IntStream.range(0, size)
+          .mapToObj(i -> new Student("name" + i, i + 10))
+          .peek(System.out::println)
+          .collect((Collectors.toList()));
 
 ### concept(문제별 개념학습)
 
