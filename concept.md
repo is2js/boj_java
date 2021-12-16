@@ -60,7 +60,7 @@
                 1. max( )인자로 들어가는 기준의 기본형태 : `Comparator.comparing  (  )`
                    **1. 원래 숫자(int list 등) 라면 : `.max(Comparator.comparing(x -> x))`**
                     - .max(Comparator.comparing(x -> x))
-                   **2. 객체, 스트링 등 : `.max(Comparator.comparingInt(x -> x.getter() or Class::getter)`**
+                      **2. 객체, 스트링 등 : `.max(Comparator.comparingInt(x -> x.getter() or Class::getter)`**
                     - .max(Comparator.comparingInt(Student::getAge))
 
         2. `<int[], intStream>` -> 바로 max()하여 `값만`을 return받음.
@@ -73,6 +73,14 @@
           .mapToObj(i -> new Student("name" + i, i + 10))
           .peek(System.out::println)
           .collect((Collectors.toList()));
+    13. stream으로 list를 합치는 법
+        1. Stream.concat( list1.stream(), list2.stream)
+            - 참고) stream으로 배열 합치는 법: Stream.of(arr1, arr2).flatMap(Stream::of).collect(Collectors.toList())
+        2. stream없이 list 합치는 법
+            1.     public static LottoTickets joinLottoTickets(List<LottoTicket> autoTickets, List<LottoTicket> manualTickets) {
+        List<LottoTicket> result = new ArrayList<>(); result.addAll(manualTickets); result.addAll(autoTickets);
+
+        return new LottoTickets(result); }
 
 ### concept(문제별 개념학습)
 
@@ -175,6 +183,9 @@ Map<Integer, String> map=list.stream()
 ```
 
 11. 문자열 길이 확인하기 직접 변환안하고 filter, anyMatch안에서 조건식만 작성
+    - Arrays.stream(stringsArray).anyMatch(s -> s.length() < 1);
 
-- Arrays.stream(stringsArray).anyMatch(s -> s.length() < 1);
+12. 람다식으로 [동적코드바뀌는부분]을 채우는 [인터페이스 참조변수]자리에 들어가는 [new 구현체()]객체를 대신하여 람다식을 넣어줄 수 있다.
+
+
 
